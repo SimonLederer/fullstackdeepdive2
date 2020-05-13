@@ -1,0 +1,27 @@
+* {
+  padding: 0px;
+  margin: 0px;
+}
+
+.container {
+  background-color: lightgrey;
+  margin: 10%;
+  padding: 5%;
+}
+
+.person {
+  list-style: none;
+  background-color: lightblue;
+  border-top: 2px solid black;
+}
+
+.btn {
+  border-style: none;
+  padding: 10px 100px;
+  margin: 10px 0px;
+  background-color: black;
+  color: white;
+}
+.btn:hover {
+  cursor: pointer;
+}
