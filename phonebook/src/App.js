@@ -2,6 +2,32 @@ import React, { useState, useEffect } from "react";
 import "./App.css";
 import phonebookServices from "./services/phonebook";
 // Components
+const Notification = ({ successMessage = null, failureMessage = null }) => {
+  const successStyle = {
+    color: "green",
+  };
+  const failureStyle = {
+    color: "red",
+  };
+  // If there is a failure message
+  if (failureMessage !== null) {
+    return (
+      <div className="notification" style={failureStyle}>
+        {failureMessage}
+      </div>
+    );
+  }
+  // If there is a success message
+  if (successMessage !== null) {
+    return (
+      <div className="notification" style={successStyle}>
+        {successMessage}
+      </div>
+    );
+  }
+  return null;
+};
+
 const Numbers = ({ persons, deletePerson }) => {
   return (
     <ul>
@@ -76,6 +102,8 @@ const App = () => {
   const [newName, setNewName] = useState("");
   const [newPhoneNumber, setNewPhoneNumber] = useState("");
   const [filterExpression, setFilterExpression] = useState("");
+  const [successMessage, setSuccessMessage] = useState(null);
+  const [failureMessage, setFailureMessage] = useState(null);
 
   // Effects
   useEffect(() => {
@@ -84,9 +112,11 @@ const App = () => {
     });
   }, []);
 
-  // Submitting the form
+  // Submitting the form to add a new person to the phonebook
   const addNewPerson = (event) => {
     event.preventDefault();
+
+    // If the person's name is already in the phonebook
     if (persons.some((person) => person.name === newName)) {
       if (
         window.confirm(
@@ -98,17 +128,40 @@ const App = () => {
           ...persons.find((person) => person.name === newName),
           number: newPhoneNumber,
         };
-        phonebookServices.updatePerson(person).then((response) => {
-          setPersons(persons.map((p) => (p.id !== person.id ? p : person)));
-          setNewName("");
-          setNewPhoneNumber("");
-        });
+        phonebookServices
+          .updatePerson(person)
+          .then((response) => {
+            setPersons(persons.map((p) => (p.id !== person.id ? p : person)));
+            setSuccessMessage(
+              `${response.data.name}'s number has been changed`
+            );
+            setTimeout(() => {
+              setSuccessMessage(null);
+            }, 5000);
+            setNewName("");
+            setNewPhoneNumber("");
+          })
+          .catch((error) => {
+            setPersons(persons.filter((p) => person.id !== p.id));
+            setFailureMessage(
+              `${person.name} has already been deleted from the server`
+            );
+            setTimeout(() => {
+              setFailureMessage(null);
+            }, 5000);
+          });
       }
       return;
     }
+
+    // Actually adding a new name and phonenumber to the phonebook
     const newPerson = { name: newName, number: newPhoneNumber };
     phonebookServices.addPerson(newPerson).then(({ data }) => {
       setPersons([...persons, data]);
+      setSuccessMessage(`${newPerson.name} has been added to the phonebook`);
+      setTimeout(() => {
+        setSuccessMessage(null);
+      }, 5000);
     });
     setNewName("");
     setNewPhoneNumber("");
@@ -157,6 +210,10 @@ const App = () => {
       />
       <h2>Numbers</h2>
       <Numbers persons={personsToShow} deletePerson={deletePerson} />
+      <Notification
+        successMessage={successMessage}
+        failureMessage={failureMessage}
+      />
     </div>
   );
 };

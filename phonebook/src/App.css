@@ -25,3 +25,16 @@
 .btn:hover {
   cursor: pointer;
 }
+
+.notification {
+  background: lightgrey;
+  font-size: 20px;
+  border-style: solid;
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 10px;
+  position: absolute;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+}
